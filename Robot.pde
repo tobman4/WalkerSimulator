@@ -3,13 +3,18 @@ class Robot {
   final int size = 10;
   final int rayDensity = 1;
   final int rayLength = 100;
+  final int turnSpeed = 1;
   
   PVector pos;
   
   Brain brain;
   
-  int speed = 1;
+  float speed = 1;
+  
   int rot = 0;
+  
+  private int turnTime = 0;
+  private int turnDir = 1;
   
   Ray[] _rays;
   Ray[] rays;
@@ -27,19 +32,6 @@ class Robot {
     brain = new BoxBrain(this);
   }
   
-  void turn(int dir) {
-    rot += dir;
-    
-    while(rot < 0 || rot > 360) {
-      if(rot < 0) {
-        rot += 360;
-      } else if(rot > 360) {
-        rot -= 360;
-      }
-    }
-    
-  }
-  
   void update() {
     
     /*
@@ -53,15 +45,22 @@ class Robot {
     arrayCopy(_rays,rot,rays,0,rays.length-rot);
     arrayCopy(_rays,0,rays,rays.length-rot,rot);
     
-    brain.update();
+    if(brain != null) {
+      brain.update();
+    }
     
     rays[0].ID = true;
     rays[90].ID = true;
     rays[180].ID = true;
     rays[270].ID = true;
     
-    PVector toAdd = new PVector(0,-speed).rotate(radians(rot));
-    pos.add(toAdd);
+    if(turnTime > 0) {
+      turn(turnDir);
+      turnTime--;
+    } else {
+      PVector toAdd = new PVector(0,-speed).rotate(radians(rot));
+      pos.add(toAdd);
+    }
   }
   
   void render() {
@@ -75,5 +74,34 @@ class Robot {
       -size,size,
       size,size);
     pop();
+  }
+  
+  boolean isTurning() {
+    return turnTime > 0;
+  }
+  
+  void fancyTurn(int dir) {
+    turnTime = abs(dir)/turnSpeed;
+    if(dir < 0) {
+      turnDir = -turnSpeed;
+    } else if(dir > 0) {
+      turnDir = turnSpeed;
+    } else {
+      turnTime = 0;
+    }
+    //print("Turn " + turnDir + " for " + turnTime);
+  }
+  
+  void turn(int dir) {
+    rot += dir;
+    
+    while(rot < 0 || rot > 360) {
+      if(rot < 0) {
+        rot += 360;
+      } else if(rot > 360) {
+        rot -= 360;
+      }
+    }
+    
   }
 }

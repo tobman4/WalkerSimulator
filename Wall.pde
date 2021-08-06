@@ -26,6 +26,7 @@ class Wall {
 PVector p1;
 
 void mousePressed() {
+  println(mouseX + " " + mouseY);
   if(p1 == null) {
     p1 = new PVector(mouseX,mouseY);
   } else {
